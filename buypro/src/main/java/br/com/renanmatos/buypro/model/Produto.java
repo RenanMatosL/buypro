@@ -64,16 +64,18 @@ public class Produto implements Serializable{
     @Column(name = "COMPRIMENTO", length = 255, nullable = false)  
     private BigDecimal comprimento; // Comprimento do produto	
     
+    @Column(name = "ID_VENDEDOR", length = 250, nullable = false)  
+    private Long idVendedor;  
+    
 
     //CONSTRUTORES
     
 	public Produto() {
 	}
 
-
-
 	public Produto(Long idProduto, String codigo, String nome, String descricao, String cor, String categoria,
-			BigDecimal preco, BigDecimal peso, BigDecimal altura, BigDecimal largura, BigDecimal comprimento) {
+			BigDecimal preco, BigDecimal peso, BigDecimal altura, BigDecimal largura, BigDecimal comprimento,
+			Long idVendedor) {
 		super();
 		this.idProduto = idProduto;
 		this.codigo = codigo;
@@ -86,146 +88,108 @@ public class Produto implements Serializable{
 		this.altura = altura;
 		this.largura = largura;
 		this.comprimento = comprimento;
+		this.idVendedor = idVendedor;
 	}
-
 
 	public Long getIdProduto() {
 		return idProduto;
 	}
 
-
-
 	public void setIdProduto(Long idProduto) {
 		this.idProduto = idProduto;
 	}
-
-
 
 	public String getCodigo() {
 		return codigo;
 	}
 
-
-
 	public void setCodigo(String codigo) {
 		this.codigo = codigo;
 	}
-
-
 
 	public String getNome() {
 		return nome;
 	}
 
-
-
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-
-
 
 	public String getDescricao() {
 		return descricao;
 	}
 
-
-
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
-
-
 
 	public String getCor() {
 		return cor;
 	}
 
-
-
 	public void setCor(String cor) {
 		this.cor = cor;
 	}
-
-
 
 	public String getCategoria() {
 		return categoria;
 	}
 
-
-
 	public void setCategoria(String categoria) {
 		this.categoria = categoria;
 	}
-
-
 
 	public BigDecimal getPreco() {
 		return preco;
 	}
 
-
-
 	public void setPreco(BigDecimal preco) {
 		this.preco = preco;
 	}
-
-
 
 	public BigDecimal getPeso() {
 		return peso;
 	}
 
-
-
 	public void setPeso(BigDecimal peso) {
 		this.peso = peso;
 	}
-
-
 
 	public BigDecimal getAltura() {
 		return altura;
 	}
 
-
-
 	public void setAltura(BigDecimal altura) {
 		this.altura = altura;
 	}
-
-
 
 	public BigDecimal getLargura() {
 		return largura;
 	}
 
-
-
 	public void setLargura(BigDecimal largura) {
 		this.largura = largura;
 	}
-
-
 
 	public BigDecimal getComprimento() {
 		return comprimento;
 	}
 
-
-
 	public void setComprimento(BigDecimal comprimento) {
 		this.comprimento = comprimento;
 	}
 
+	public Long getIdVendedor() {
+		return idVendedor;
+	}
 
+	public void setIdVendedor(Long idVendedor) {
+		this.idVendedor = idVendedor;
+	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -238,6 +202,8 @@ public class Produto implements Serializable{
 		Produto other = (Produto) obj;
 		return Objects.equals(idProduto, other.idProduto);
 	}
+	
+	
 
 	  
     

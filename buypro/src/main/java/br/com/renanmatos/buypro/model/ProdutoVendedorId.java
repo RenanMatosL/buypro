@@ -18,23 +18,6 @@ public class ProdutoVendedorId  implements Serializable {
 		this.vendedor = vendedor;
 		this.produto = produto;
 	}
-	//Equals and hashcode
-	@Override
-	public int hashCode() {
-		return Objects.hash(produto, vendedor);
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ProdutoVendedorId other = (ProdutoVendedorId) obj;
-		return Objects.equals(produto, other.produto) && Objects.equals(vendedor, other.vendedor);
-	}
 
 	// Getters
 	public Long getVendedor() {
@@ -53,4 +36,22 @@ public class ProdutoVendedorId  implements Serializable {
 		this.produto = produto;
 	}
 		
+	//Equals and hashcode
+	@Override
+	public int hashCode() {
+		return Objects.hash(produto, vendedor);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProdutoVendedorId other = (ProdutoVendedorId) obj;
+		return Objects.equals(produto, other.produto) && Objects.equals(vendedor, other.vendedor);
+	}
+	
 }

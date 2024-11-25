@@ -92,6 +92,7 @@ public class PedidoServiceImpl implements PedidoService{
 
 	public void calcularValorPedido(Pedido pedido) {
 		BigDecimal valorPedido = new BigDecimal("0");
+		
 		for (ProdutoPedido produtoPedido : pedido.getListaProdutoPedido()) {
 			//Preencher o valor unitário do produto no pedido recuperando da entidade produto
 			produtoPedido.setValorUnitario(produtoPedido.getProduto().getPreco()); 
@@ -252,24 +253,24 @@ public class PedidoServiceImpl implements PedidoService{
 	}
 	
 
-    // Método para calcular o peso total físico  
-    private BigDecimal calcularPesoTotalFisico(List<Produto> produtos) {  
-        BigDecimal pesoTotal = BigDecimal.ZERO; // Inicializa o peso total a zero  
-        for (Produto produto : produtos) {  
-            pesoTotal = pesoTotal.add(produto.getPeso()); // Soma o peso de cada produto  
-        }  
-        return pesoTotal; // Retorna o peso total físico  
-    }  
-
-    // Método para calcular o peso total volumétrico  
-    private BigDecimal calcularPesoTotalVolumetrico(List<Produto> produtos) {  
-        BigDecimal pesoTotalVolumetrico = BigDecimal.ZERO; // Inicializa o peso total volumétrico a zero  
-        for (Produto produto : produtos) {  
-            // Soma o peso volumétrico de cada produto utilizando o FreteService  
-            pesoTotalVolumetrico = pesoTotalVolumetrico.add(produtoService.calcularPesoVolumetrico(produto));  
-        }  
-        return pesoTotalVolumetrico; // Retorna o peso total volumétrico  
-    }  
+//    // Método para calcular o peso total físico  
+//    private BigDecimal calcularPesoTotalFisico(List<Produto> produtos) {  
+//        BigDecimal pesoTotal = BigDecimal.ZERO; // Inicializa o peso total a zero  
+//        for (Produto produto : produtos) {  
+//            pesoTotal = pesoTotal.add(produto.getPeso()); // Soma o peso de cada produto  
+//        }  
+//        return pesoTotal; // Retorna o peso total físico  
+//    }  
+//
+//    // Método para calcular o peso total volumétrico  
+//    private BigDecimal calcularPesoTotalVolumetrico(List<Produto> produtos) {  
+//        BigDecimal pesoTotalVolumetrico = BigDecimal.ZERO; // Inicializa o peso total volumétrico a zero  
+//        for (Produto produto : produtos) {  
+//            // Soma o peso volumétrico de cada produto utilizando o FreteService  
+//            pesoTotalVolumetrico = pesoTotalVolumetrico.add(produtoService.calcularPesoVolumetrico(produto));  
+//        }  
+//        return pesoTotalVolumetrico; // Retorna o peso total volumétrico  
+//    }  
 }  
 	
 

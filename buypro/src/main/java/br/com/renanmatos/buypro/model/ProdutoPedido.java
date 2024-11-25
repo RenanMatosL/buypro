@@ -61,6 +61,20 @@ public class ProdutoPedido implements Serializable {
 
 	private BigDecimal valorUnitario;
 	
+	public ProdutoPedido() {
+		super();
+	}
+	
+	public ProdutoPedido(Pedido pedido, Produto produto, BigDecimal quantidade, BigDecimal valorUnitario) {
+		super();
+		this.pedido = pedido;
+		this.produto = produto;
+		this.quantidade = quantidade;
+		this.valorUnitario = valorUnitario;
+	}
+
+
+
 	//Getters e setters
 
 

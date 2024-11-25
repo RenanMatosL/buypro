@@ -140,6 +140,8 @@ public class ProdutoServiceImpl implements ProdutoService {
 		if (produto != null) {
 			ProdutoDto produtoDto = new ProdutoDto();
 			produtoDto.setIdProduto(produto.getIdProduto());
+			produtoDto.setCodigo(produto.getCodigo());
+			produtoDto.setCor(produto.getCor());
 			produtoDto.setNome(produto.getNome());
 			produtoDto.setAltura(produto.getAltura());
 			produtoDto.setComprimento(produto.getComprimento());
@@ -148,6 +150,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 			produtoDto.setPeso(produto.getPeso());
 			produtoDto.setCategoria(produto.getCategoria());
 			produtoDto.setPreco(produto.getPreco());
+			produtoDto.setidVendedor(produto.getIdVendedor());
 
 			return produtoDto;
 		} else {
@@ -171,7 +174,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 			produto.setDescricao(produtoDto.getDescricao());
 			produto.setCategoria(produtoDto.getCategoria());
 			produto.setPreco(produtoDto.getPreco());
-
+			produto.setIdVendedor(produtoDto.getidVendedor());
 			return produto;
 		} else {
 			return null;

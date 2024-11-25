@@ -1,9 +1,11 @@
 package br.com.renanmatos.buypro.dao;
 
-import java.math.BigDecimal;
+import java.util.List;
 
-public interface FreteDao {
+import br.com.renanmatos.buypro.model.Frete;
 
-	BigDecimal calcularFrete(BigDecimal peso);
-
+public interface FreteDao{
+	public Frete salvarFrete(Frete frete);
+	public Frete consultarFretePorId(Long idFrete);
+	public List<Frete> carregarTodosFretes();
 }

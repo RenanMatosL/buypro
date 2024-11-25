@@ -27,12 +27,12 @@ public class Frete {
 			name = "ID_FRETE")
 	private Long id;
 
-	@Column(
-			// Nome da coluna na base de dados
-			name = "PESO",
-			// Indica se a coluna pode possuir valores NULL
-			nullable = false)
-	private Double peso;
+//	@Column(
+//			// Nome da coluna na base de dados
+//			name = "PESO",
+//			// Indica se a coluna pode possuir valores NULL
+//			nullable = false)
+//	private Double peso;
 
 	@Column(
 			// Nome da coluna na base de dados
@@ -56,7 +56,7 @@ public class Frete {
 	public Frete(Long id, Double peso, BigDecimal valor, Pedido pedido) {
 		super();
 		this.id = id;
-		this.peso = peso;
+//		this.peso = peso;
 		this.valor = valor;
 		this.pedido = pedido;
 	}
@@ -70,13 +70,13 @@ public class Frete {
 		this.id = id;
 	}
 
-	public Double getPeso() {
-		return peso;
-	}
+//	public Double getPeso() {
+//		return peso;
+//	}
 
-	public void setPeso(Double peso) {
-		this.peso = peso;
-	}
+//	public void setPeso(Double peso) {
+//		this.peso = peso;
+//	}
 
 	public BigDecimal getValor() {
 		return valor;

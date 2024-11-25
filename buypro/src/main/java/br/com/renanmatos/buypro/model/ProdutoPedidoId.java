@@ -12,6 +12,7 @@ public class ProdutoPedidoId implements Serializable{
 	/*Os nomes dos atributos apontam diretamente para os nomes dos atributos da Entity, ProdutoPedido no caso*/
 	private Long pedido;
 	private Long produto;
+	
 
 	public ProdutoPedidoId (){
 	}
@@ -20,24 +21,6 @@ public class ProdutoPedidoId implements Serializable{
 		super();
 		this. pedido =  pedido;
 		this.produto =produto;
-	}
-
-	//Métodos equals e hashcode com base nos atributos do relacionamento many to many (pedido e produto). SOLICITAR QUE O ECLIPSE GERE ESSES MÉTODOS!
-	@Override
-	public int hashCode() {
-		return Objects.hash(pedido, produto);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ProdutoPedidoId other = (ProdutoPedidoId) obj;
-		return Objects.equals(pedido, other.pedido) && Objects.equals(produto, other.produto);
 	}
 
 	//Getters e setters
@@ -57,6 +40,23 @@ public class ProdutoPedidoId implements Serializable{
 		this.produto = produto;
 	}
 	
+	//Métodos equals e hashcode com base nos atributos do relacionamento many to many (pedido e produto). SOLICITAR QUE O ECLIPSE GERE ESSES MÉTODOS!
+	@Override
+	public int hashCode() {
+		return Objects.hash(pedido, produto);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProdutoPedidoId other = (ProdutoPedidoId) obj;
+		return Objects.equals(pedido, other.pedido) && Objects.equals(produto, other.produto);
+	}
 
 	
 }

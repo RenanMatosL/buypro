@@ -3,6 +3,7 @@ package br.com.renanmatos.buypro.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import br.com.renanmatos.buypro.model.Vendedor;
 import br.com.renanmatos.buypro.validacao.ValidacaoAlteracao;
 import br.com.renanmatos.buypro.validacao.ValidacaoCadastro;
 import br.com.renanmatos.buypro.validacao.ValidacaoCadastroPedido;
@@ -43,6 +44,9 @@ public class ProdutoDto implements Serializable{
 
     @NotNull(message = "{validacao.campo-obrigatorio.comprimento}", groups = {ValidacaoCadastro.class, ValidacaoAlteracao.class})  
     private BigDecimal comprimento;
+    
+    @NotEmpty(message = "{validacao.campo-obrigatorio.vendedor}", groups = {ValidacaoCadastro.class, ValidacaoAlteracao.class})  
+    private Long idVendedor;
 
 	public Long getIdProduto() {
 		return idProduto;
@@ -131,6 +135,17 @@ public class ProdutoDto implements Serializable{
 	public void setComprimento(BigDecimal comprimento) {
 		this.comprimento = comprimento;
 	}
+
+	public Long getidVendedor() {
+		return idVendedor;
+	}
+
+	public void setidVendedor(Long vendedor) {
+		this.idVendedor = vendedor;
+	} 
+
+	
+	
     
     
 }
