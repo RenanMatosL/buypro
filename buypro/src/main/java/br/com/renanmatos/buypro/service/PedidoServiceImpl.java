@@ -39,6 +39,7 @@ public class PedidoServiceImpl implements PedidoService{
 	@Autowired
 	private ClienteService clienteService;
 	
+	
 	@Autowired
 	private FreteServiceImpl freteService;
 		
@@ -50,28 +51,6 @@ public class PedidoServiceImpl implements PedidoService{
 	
 	//Configuração de transação
 	@Transactional(
-		/*Indica ao Spring que o método não precisa ser executado com uma transação, onde se JÁ houver uma transação aberta, esse método fará uso dela, mas se NÃO houver uma 
-		transação aberta, o Spring NÃO deverá criar uma para executar esse método*/
-		propagation=Propagation.SUPPORTS
-	)
-	//Método que retorna a um List de TODOS Pedidos
-	public List<Pedido> carregarTodosPedidos() {
-		return pedidoDao.carregarTodosPedidos();
-	}
-
-	//Configuração de transação
-	@Transactional(
-		/*Indica ao Spring que o método não precisa ser executado com uma transação, onde se JÁ houver uma transação aberta, esse método fará uso dela, mas se NÃO houver uma 
-		transação aberta, o Spring NÃO deverá criar uma para executar esse método*/
-		propagation=Propagation.SUPPORTS
-	)
-	//Método que retorna um Pedido por seu ID
-	public Pedido consultarPedidoPorId(Long idPedido) {
-		return pedidoDao.consultarPedidoPorId(idPedido);
-	}
-
-	//Configuração de transação
-	@Transactional(
 		/*Indica ao Spring que o método deverá ser executado com transação aberta, onde se já houver uma transação aberta, 
 		deverá utilizar essa transação aberta (ao invés de criar nova), caso contrário, deverá criar uma nova transação*/
 		propagation=Propagation.REQUIRED
@@ -81,6 +60,7 @@ public class PedidoServiceImpl implements PedidoService{
 		//Preencher atributos padrão
 		pedido.setProtocoloDataPedido(new Date());
 		pedido.setDataPedido(pedido.getDataPedido());
+		
 		pedido.setStatusPedidoAtivo(StatusPedido.AGUARDANDO_PAGAMENTO);
 		pedido.getCliente().setNome(pedido.getCliente().getNome());
 		
@@ -89,7 +69,12 @@ public class PedidoServiceImpl implements PedidoService{
 		
 		return pedidoDao.salvarPedido(pedido);
 	}
-
+	//Configuração de transação
+		@Transactional(
+			/*Indica ao Spring que o método deverá ser executado com transação aberta, onde se já houver uma transação aberta, 
+			deverá utilizar essa transação aberta (ao invés de criar nova), caso contrário, deverá criar uma nova transação*/
+			propagation=Propagation.REQUIRED
+		)
 	public void calcularValorPedido(Pedido pedido) {
 		BigDecimal valorPedido = new BigDecimal("0");
 		
@@ -101,8 +86,54 @@ public class PedidoServiceImpl implements PedidoService{
 			valorPedido = valorPedido.add(produtoPedido.getValorUnitario().multiply(produtoPedido.getQuantidade()));
 		}
 		
-		//Atualizar o valor total do pedido
+		//Atualizando o valor total do pedido
 		pedido.setValor(valorPedido);
+	}
+	
+	
+	public BigDecimal calcularValorTotalFrete (Long idPedido) throws RegistroNaoEncontradoException {
+		Pedido pedido = consultarPedidoPorId(idPedido);
+		if (pedido == null) {
+			throw new RegistroNaoEncontradoException("Pedido nao encontrado para o ID: " + idPedido);
+		}
+		return freteService.calcularFrete(pedido);	// Usando o método da FreteService  
+	}  
+	
+	
+	//Metodo para retornar o valor total do pedido + frete
+	public BigDecimal calculaValorTotalComFrete (Long idPedido) throws RegistroNaoEncontradoException {
+		Pedido pedido = consultarPedidoPorId(idPedido);
+		if (pedido == null) {
+			throw new RegistroNaoEncontradoException("Pedido nao encontrado para o ID: " + idPedido);
+		}
+		BigDecimal valorTotalPedido = pedido.getValor();
+		BigDecimal valorTotalFrete = freteService.calcularFrete(pedido);
+		
+		return valorTotalPedido.add (valorTotalFrete);
+		
+		
+	}
+	
+	//Configuração de transação
+	@Transactional(
+		/*Indica ao Spring que o método não precisa ser executado com uma transação, onde se JÁ houver uma transação aberta, esse método fará uso dela, mas se NÃO houver uma 
+		transação aberta, o Spring NÃO deverá criar uma para executar esse método*/
+		propagation=Propagation.SUPPORTS
+	)
+	//Método que retorna um Pedido por seu ID
+	public Pedido consultarPedidoPorId(Long idPedido) {
+		return pedidoDao.consultarPedidoPorId(idPedido);
+	}
+	
+	//Configuração de transação
+	@Transactional(
+		/*Indica ao Spring que o método não precisa ser executado com uma transação, onde se JÁ houver uma transação aberta, esse método fará uso dela, mas se NÃO houver uma 
+		transação aberta, o Spring NÃO deverá criar uma para executar esse método*/
+		propagation=Propagation.SUPPORTS
+	)
+	//Método que retorna a um List de TODOS Pedidos
+	public List<Pedido> carregarTodosPedidos() {
+		return pedidoDao.carregarTodosPedidos();
 	}
 	
 	//Configuração de transação
@@ -252,27 +283,8 @@ public class PedidoServiceImpl implements PedidoService{
 		
 	}
 	
-
-//    // Método para calcular o peso total físico  
-//    private BigDecimal calcularPesoTotalFisico(List<Produto> produtos) {  
-//        BigDecimal pesoTotal = BigDecimal.ZERO; // Inicializa o peso total a zero  
-//        for (Produto produto : produtos) {  
-//            pesoTotal = pesoTotal.add(produto.getPeso()); // Soma o peso de cada produto  
-//        }  
-//        return pesoTotal; // Retorna o peso total físico  
-//    }  
-//
-//    // Método para calcular o peso total volumétrico  
-//    private BigDecimal calcularPesoTotalVolumetrico(List<Produto> produtos) {  
-//        BigDecimal pesoTotalVolumetrico = BigDecimal.ZERO; // Inicializa o peso total volumétrico a zero  
-//        for (Produto produto : produtos) {  
-//            // Soma o peso volumétrico de cada produto utilizando o FreteService  
-//            pesoTotalVolumetrico = pesoTotalVolumetrico.add(produtoService.calcularPesoVolumetrico(produto));  
-//        }  
-//        return pesoTotalVolumetrico; // Retorna o peso total volumétrico  
-//    }  
-}  
 	
+}
 
 
 

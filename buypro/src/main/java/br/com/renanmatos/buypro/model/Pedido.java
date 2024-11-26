@@ -140,7 +140,21 @@ public class Pedido implements Serializable{
 	@Fetch(value = FetchMode.SUBSELECT)
 	private List <ProdutoPedido> listaProdutoPedido = new ArrayList <> ();
 	
-	@OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL) // referência à entidade frete 
+	
+	
+	/*Relacionamento MUITOS para UM*/
+	@ManyToOne(
+		/*Indica que por PADRÃO, ao recuperar da base dados da entidade Pedido, o esse objeto relacionado DEVERÁ ser também recuperado (SERÁ realziado JOIN entre Pedido e frete)*/
+		fetch = FetchType.EAGER
+	)
+	//Anotação para configurar as colunas das tabelas envolvidas que aplicam o relacionamento
+	@JoinColumn (
+		//Nome da coluna (FK) que será criada na tabela dessa entidade (Pedido)
+		name="ID_FRETE", 
+		//Nome da coluna PK da tabela da entidade relacionada (Frete)
+		referencedColumnName="ID_FRETE"
+	)
+
 	private Frete frete;
 	
 	//Construtores
