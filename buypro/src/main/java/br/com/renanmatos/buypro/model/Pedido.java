@@ -100,20 +100,6 @@ public class Pedido implements Serializable{
 	
 	/*Relacionamento MUITOS para UM*/
 	@ManyToOne(
-		/*Indica que por PADRÃO, ao recuperar da base dados da entidade Pedido, o esse objeto relacionado DEVERÁ ser também recuperado (SERÁ realziado JOIN entre Pedido e Vendodor)*/
-		fetch = FetchType.EAGER
-	)
-	//Anotação para configurar as colunas das tabelas envolvidas que aplicam o relacionamento
-	@JoinColumn (
-		//Nome da coluna (FK) que será criada na tabela dessa entidade (Pedido)
-		name="ID_VENDEDOR", 
-		//Nome da coluna PK da tabela da entidade relacionada (Vendedor)
-		referencedColumnName="ID_VENDEDOR"
-	)  
-    private Vendedor vendedor; 
-
-	/*Relacionamento MUITOS para UM*/
-	@ManyToOne(
 		/*Indica que por PADRÃO, ao recuperar da base dados da entidade Pedido, o esse objeto relacionado DEVERÁ ser também recuperado (SERÁ realziado JOIN entre Pedido e Cliente)*/
 		fetch = FetchType.EAGER
 	)
@@ -157,23 +143,29 @@ public class Pedido implements Serializable{
 
 	private Frete frete;
 	
+	private BigDecimal valorPedidoComFrete;
+	
+	
 	//Construtores
 	public Pedido() {
 	}
 	
 	public Pedido(Long idPedido, Date protocoloDataPedido, LocalDate dataPedido, StatusPedido statusPedidoAtivo,
-			BigDecimal valor, Vendedor vendedor, Cliente cliente, List<ProdutoPedido> listaProdutoPedido, Frete frete) {
+			BigDecimal valor, Vendedor vendedor, Cliente cliente, List<ProdutoPedido> listaProdutoPedido, Frete frete,
+			BigDecimal valorPedidoComFrete) {
 		super();
 		this.idPedido = idPedido;
 		this.protocoloDataPedido = protocoloDataPedido;
 		DataPedido = dataPedido;
 		this.statusPedidoAtivo = statusPedidoAtivo;
 		this.valor = valor;
-		this.vendedor = vendedor;
 		this.cliente = cliente;
 		this.listaProdutoPedido = listaProdutoPedido;
 		this.frete = frete;
+		this.valorPedidoComFrete = valorPedidoComFrete;
 	}
+
+
 
 
 	@Override
@@ -235,13 +227,6 @@ public class Pedido implements Serializable{
 		this.valor = valor;
 	}
 
-	public Vendedor getVendedor() {
-		return vendedor;
-	}
-
-	public void setVendedor(Vendedor vendedor) {
-		this.vendedor = vendedor;
-	}
 
 	public Cliente getCliente() {
 		return cliente;
@@ -267,12 +252,19 @@ public class Pedido implements Serializable{
 		this.frete = frete;
 	}
 
+	public BigDecimal getValorPedidoComFrete() {
+		return valorPedidoComFrete;
+	}
+
+	public void setValorPedidoComFrete(BigDecimal valorPedidoComFrete) {
+		this.valorPedidoComFrete = valorPedidoComFrete;
+	}
+
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-	
 
+	
 
 }
 	

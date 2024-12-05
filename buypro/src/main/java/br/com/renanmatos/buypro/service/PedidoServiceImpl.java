@@ -62,21 +62,25 @@ public class PedidoServiceImpl implements PedidoService{
 		pedido.setDataPedido(pedido.getDataPedido());
 		
 		pedido.setStatusPedidoAtivo(StatusPedido.AGUARDANDO_PAGAMENTO);
-		pedido.getCliente().setNome(pedido.getCliente().getNome());
 		
 		//Calcular valores do pedido (preencher atributos da entidade)
 		calcularValorPedido(pedido);
 		
+        // Calcular o valor do frete  
+		BigDecimal valorFrete = calcularValorFrete(pedido);
+		
+        // Calcular o valor total (pedido + frete)  
+		BigDecimal valorTotal = calcularValorTotal (pedido.getValor(), valorFrete);
+		
+		//Atualizando o pedido com os valores
+		pedido.getFrete().setValor(valorFrete);
+		pedido.setValor(valorTotal);
+		
 		return pedidoDao.salvarPedido(pedido);
 	}
-	//Configuração de transação
-		@Transactional(
-			/*Indica ao Spring que o método deverá ser executado com transação aberta, onde se já houver uma transação aberta, 
-			deverá utilizar essa transação aberta (ao invés de criar nova), caso contrário, deverá criar uma nova transação*/
-			propagation=Propagation.REQUIRED
-		)
+
 	public void calcularValorPedido(Pedido pedido) {
-		BigDecimal valorPedido = new BigDecimal("0");
+		BigDecimal valorPedido = BigDecimal.ZERO;
 		
 		for (ProdutoPedido produtoPedido : pedido.getListaProdutoPedido()) {
 			//Preencher o valor unitário do produto no pedido recuperando da entidade produto
@@ -91,25 +95,14 @@ public class PedidoServiceImpl implements PedidoService{
 	}
 	
 	
-	public BigDecimal calcularValorTotalFrete (Long idPedido) throws RegistroNaoEncontradoException {
-		Pedido pedido = consultarPedidoPorId(idPedido);
-		if (pedido == null) {
-			throw new RegistroNaoEncontradoException("Pedido nao encontrado para o ID: " + idPedido);
-		}
-		return freteService.calcularFrete(pedido);	// Usando o método da FreteService  
+	public BigDecimal calcularValorFrete (Pedido pedido){
+		return freteService.calcularFrete(pedido); // Método que deve calcular e retornar o valor do frete  
 	}  
 	
 	
 	//Metodo para retornar o valor total do pedido + frete
-	public BigDecimal calculaValorTotalComFrete (Long idPedido) throws RegistroNaoEncontradoException {
-		Pedido pedido = consultarPedidoPorId(idPedido);
-		if (pedido == null) {
-			throw new RegistroNaoEncontradoException("Pedido nao encontrado para o ID: " + idPedido);
-		}
-		BigDecimal valorTotalPedido = pedido.getValor();
-		BigDecimal valorTotalFrete = freteService.calcularFrete(pedido);
-		
-		return valorTotalPedido.add (valorTotalFrete);
+	public BigDecimal calcularValorTotal (BigDecimal valorPedido, BigDecimal valorFrete) {
+		return valorPedido.add (valorFrete);
 		
 		
 	}
@@ -175,9 +168,13 @@ public class PedidoServiceImpl implements PedidoService{
 			PedidoDto pedidoDto = new PedidoDto();
 			pedidoDto.setIdPedido(pedido.getIdPedido());
 			pedidoDto.setIdCliente(pedido.getCliente().getIdCliente());
-			pedidoDto.setProtocoloDataPedido(pedido.getProtocoloDataPedido());;
-			pedidoDto.setValor(pedido.getValor());
+			pedidoDto.setProtocoloDataPedido(pedido.getProtocoloDataPedido());
+			pedidoDto.setValorPedido(pedido.getValor());
+			pedidoDto.setValorFrete(pedido.getFrete().getValor());
+			pedidoDto.setValorPedidoComFrete(pedido.getValorPedidoComFrete());
 			pedidoDto.setStatusPedido(pedido.getStatusPedidoAtivo());
+			pedidoDto.setListaItenPedido(pedido.getListaProdutoPedido());
+			
 			
 			//Lista de itens
 			if (pedido.getListaProdutoPedido() != null && pedido.getListaProdutoPedido().size() > 0) {
@@ -186,6 +183,7 @@ public class PedidoServiceImpl implements PedidoService{
 					itenPedidoDto.setProduto(produtoService.getProdutoDtoPorProduto(produtoPedido.getProduto()));
 					itenPedidoDto.setQuantidade(produtoPedido.getQuantidade());
 					itenPedidoDto.setValorUnitario(produtoPedido.getValorUnitario());
+					
 					
 					pedidoDto.getListaItenPedido().add(itenPedidoDto);
 				}
@@ -207,7 +205,7 @@ public class PedidoServiceImpl implements PedidoService{
 			pedido.setCliente(clienteService.consultarClientePorId(pedidoDto.getIdCliente(), false));
 			pedido.setProtocoloDataPedido(pedidoDto.getProtocoloDataPedido());
 			pedido.setStatusPedidoAtivo(pedidoDto.getStatusPedido());
-			pedido.setValor(pedidoDto.getValor());
+			pedido.setValor(pedidoDto.getValorPedido());
 			
 			//Lista de itens
 			if (pedidoDto.getListaItenPedido() != null && pedidoDto.getListaItenPedido().size() > 0) {
@@ -282,7 +280,6 @@ public class PedidoServiceImpl implements PedidoService{
 		}
 		
 	}
-	
 	
 }
 

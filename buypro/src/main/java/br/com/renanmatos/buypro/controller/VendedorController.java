@@ -15,63 +15,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import br.com.renanmatos.buypro.dto.ClienteDto;
-import br.com.renanmatos.buypro.enuns.StatusClienteAtivo;
+import br.com.renanmatos.buypro.dto.VendedorDto;
+import br.com.renanmatos.buypro.enuns.StatusVendedorAtivo;
 import br.com.renanmatos.buypro.excecoes.ErroGenericoException;
 import br.com.renanmatos.buypro.excecoes.RegistroJaExisteException;
 import br.com.renanmatos.buypro.excecoes.RegistroNaoEncontradoException;
 import br.com.renanmatos.buypro.excecoes.RequestInvalidoException;
-import br.com.renanmatos.buypro.model.Cliente;
-import br.com.renanmatos.buypro.service.ClienteService;
+import br.com.renanmatos.buypro.model.Vendedor;
+import br.com.renanmatos.buypro.service.VendedorService;
 
 @Controller
 //Prefixo da URL de todos os serviços dessa classe
-@RequestMapping("/clientes")
-public class ClienteController {
+@RequestMapping("/vendedores")
+public class VendedorController {
 
 	//Objeto referente a logs
-	private static final Log logger = LogFactory.getLog(ClienteController.class);
+	private static final Log logger = LogFactory.getLog(VendedorController.class);
 	
 	//Injeção de dependência
 	@Autowired
-	private ClienteService clienteService;
+	private VendedorService vendedorService;
 		
-	//Serviço REST
-	//Configurações do endpoint desse método
-	@RequestMapping(
-		//URL
-		value="/todosClientes"
-		//Método HTTP
-		,method=RequestMethod.GET
-		//Tipo do dado retornado
-		,produces = {"application/json; charset=utf-8"}
-	)
-	//ResponseEntity indica o conteúdo a ser retornado junto ao response HTTP
-	public ResponseEntity<List<ClienteDto>> recuperarTodosClientes() throws ErroGenericoException {
-		try {
-			//Recuperar todos os clientes da base
-			List<Cliente> listaClientes = clienteService.carregarTodosClientes(false);
-			
-			//Verificar se registros foram localizados
-			if (listaClientes != null && listaClientes.size() > 0) {
-				//Registros encontrados na base
-				//Converter o objeto Cliente para ClienteDto
-				List<ClienteDto> listaClienteDto = clienteService.getListaClienteDtoPorCliente(listaClientes);
 	
-				//Retornar os registros juntamente com o código HTTP indicando sucesso
-				return new ResponseEntity<List<ClienteDto>>(listaClienteDto, HttpStatus.OK);
-			}else {
-				/*Nenhum registro encontrado, retornar conteúdo vazio, juntamente com o código HTTP desejado*/
-				return new ResponseEntity<List<ClienteDto>>(HttpStatus.NOT_FOUND);
-			}
-		}catch(Exception e) {
-			//Inserir a ocorrência do erro no arquivo de log
-			logger.error("Erro ao recuperar os clientes: " + e.getMessage(), e);
-			
-			//Lançar a exceção para que seja tratada pelas pelos processos responsáveis
-			throw new ErroGenericoException(e.getMessage(), null, e);
-		}
-	}
 	
 	//Serviço REST
 	//Configurações do endpoint desse método
@@ -83,29 +48,29 @@ public class ClienteController {
 		//Tipo do dado retornado
 		,produces = {"application/json; charset=utf-8"}
 	)
-	public ResponseEntity<ClienteDto> getClientePorID(
+	public ResponseEntity<VendedorDto> getVendedorPorID(
 		//Indica que o Spring deverá injetar o parâmetro de URL indicado
-		@PathVariable("id") long idCliente
+		@PathVariable("id") long idVendedor
 	) throws ErroGenericoException {
 		try {
-			//Recuperar o cliente da base
-			Cliente cliente = clienteService.consultarClientePorId(idCliente, false);
+			//Recuperar o vendedor da base
+			Vendedor vendedor = vendedorService.consultarVendedorPorId(idVendedor, false);
 			
 			//Verificar se o registro foi localizado
-			if (cliente != null) {
+			if (vendedor != null) {
 				//Registro encontrado na base
-				//Converter o objeto Cliente para ClienteDto
-				ClienteDto clienteDto = clienteService.getClienteDtoPorCliente(cliente);
+				//Converter o objeto Vendedor para VendedorDto
+				VendedorDto vendedorDto = vendedorService.getVendedorDtoPorVendedor(vendedor);
 
 				//Retornar os registros juntamente com o código HTTP indicando sucesso
-				return new ResponseEntity<ClienteDto>(clienteDto, HttpStatus.OK);
+				return new ResponseEntity<VendedorDto>(vendedorDto, HttpStatus.OK);
 			}else{
 				/*Nenhum registro encontrado, retornar conteúdo vazio, juntamente com o código HTTP desejado*/
-				return new ResponseEntity<ClienteDto>(HttpStatus.NOT_FOUND);
+				return new ResponseEntity<VendedorDto>(HttpStatus.NOT_FOUND);
 			}
 		}catch(Exception e) {
 			//Inserir a ocorrência do erro no arquivo de log
-			logger.error("Erro ao recuperar o cliente por idCliente " + idCliente + ": " + e.getMessage(), e);
+			logger.error("Erro ao recuperar o vendedor por idVendedor " + idVendedor + ": " + e.getMessage(), e);
 			
 			//Lançar a exceção para que seja tratada pelas pelos processos responsáveis
 			throw new ErroGenericoException(e.getMessage(), null, e);
@@ -124,7 +89,7 @@ public class ClienteController {
 		//Tipo de dado recebido
 		,consumes = {"application/json; charset=utf-8"}
 	)
-	public ResponseEntity<Void> salvarCliente(
+	public ResponseEntity<Void> salvarVendedor(
 		//Payload recebido pela requisição
 		@RequestBody 
 		//Indicamos que os atributos do objeto deverão ser validados, lançando exceção de tipo MethodArgumentNotValidException em caso de falha
@@ -135,26 +100,26 @@ public class ClienteController {
 		//	ValidacaoCadastro.class
 		//) 
 		
-		ClienteDto clienteDto,
+		VendedorDto vendedorDto,
 		//Objeto do Spring que permite configurar conteúdo retornado na requisição referente à URL
 		UriComponentsBuilder uriComponentsBuilder
 	) throws RequestInvalidoException, ErroGenericoException, RegistroJaExisteException {
 		try {
 			//Validar o preenchimento dos campos
-			clienteService.validarClienteDtoParaCadastro(clienteDto);
+			vendedorService.validarVendedorDtoParaCadastro(vendedorDto);
 
 			//Converter o objeto DTO para Entidade
-			Cliente cliente = clienteService.getClientePorClienteDto(clienteDto);
+			Vendedor vendedor = vendedorService.getVendedorPorVendedorDto(vendedorDto);
 			
 			//Cadastrar o registro na base
-			cliente = clienteService.salvarCliente(cliente);
+			vendedor = vendedorService.salvarVendedor(vendedor);
 
 			//Obter os headers da resposta da requisição
 			HttpHeaders httpHeaders = new HttpHeaders();
 
 			//Inserir no header "location", a URL que poderá ser acessada para obter o registro recem cadastrado, ficando algo do tipo: 						
-			//http://localhost:8080/minhaAplicacao/clientes/5        						
-			httpHeaders.setLocation(uriComponentsBuilder.path("/clientes/{id}").buildAndExpand(cliente.getIdCliente()).toUri());
+			//http://localhost:8080/minhaAplicacao/vendedores/5        						
+			httpHeaders.setLocation(uriComponentsBuilder.path("/vendedores/{id}").buildAndExpand(vendedor.getIdVendedor()).toUri());
 
 			//Indicar os headers que devem ser incluídos ao retorno do serviço junto ao método HTTP indicando sucesso
 			return new ResponseEntity<Void>(httpHeaders, HttpStatus.CREATED);
@@ -163,7 +128,7 @@ public class ClienteController {
 			throw e;
 		}catch(Exception e) {
 			//Inserir a ocorrência do erro no arquivo de log
-			logger.error("Erro ao salvar o cliente (" + clienteDto.toString() + "): " + e.getMessage(), e);
+			logger.error("Erro ao salvar o vendedor (" + vendedorDto.toString() + "): " + e.getMessage(), e);
 			
 			//Lançar a exceção para que seja tratada pelas pelos processos responsáveis
 			throw new ErroGenericoException(e.getMessage(), null, e);
@@ -184,19 +149,19 @@ public class ClienteController {
 		//Tipo de dado recebido
 		,consumes = {"application/json; charset=utf-8"}
 	)
-	public ResponseEntity<Void> alterarCliente(
+	public ResponseEntity<Void> alterarVendedor(
 		//Payload recebido pela requisição
-		@RequestBody ClienteDto clienteDto
+		@RequestBody VendedorDto vendedorDto
 	) throws Exception {
 		try {
 			//Validar o preenchimento dos campos
-			clienteService.validarClienteDtoParaAlteracao(clienteDto);
+			vendedorService.validarVendedorDtoParaAlteracao(vendedorDto);
 
 			//Converter o objeto DTO para Entidade
-			Cliente cliente = clienteService.getClientePorClienteDto(clienteDto);
+			Vendedor vendedor = vendedorService.getVendedorPorVendedorDto(vendedorDto);
 			
 			//Alterar o registro na base
-			cliente = clienteService.alterarCliente(cliente);
+			vendedor = vendedorService.alterarVendedor(vendedor);
 
 			//Registro alterado na base, retornar o código HTTP indicando sucesso
 			return new ResponseEntity<Void>( HttpStatus.OK);
@@ -205,7 +170,7 @@ public class ClienteController {
 			throw e;
 		}catch(Exception e) {
 			//Inserir a ocorrência do erro no arquivo de log
-			logger.error("Erro ao alterar o cliente (" + clienteDto.toString() + "): " + e.getMessage(), e);
+			logger.error("Erro ao alterar o vendedor (" + vendedorDto.toString() + "): " + e.getMessage(), e);
 			
 			//Lançar a exceção para que seja tratada pelas pelos processos responsáveis
 			throw new ErroGenericoException(e.getMessage(), null, e);
@@ -222,22 +187,22 @@ public class ClienteController {
 		//Tipo do dado retornado
 		,produces = {"application/json; charset=utf-8"}
 	)
-	public ResponseEntity<Void> deletarCliente(
+	public ResponseEntity<Void> deletarVendedor(
 		//Indica que o Spring deverá injetar o parâmetro de URL indicado
-		@PathVariable("id") long idCliente
+		@PathVariable("id") long idVendedor
 	) throws ErroGenericoException, RegistroNaoEncontradoException {
 		try {
 			//Ao invés de deletar o registro, apenas alterar seu status para INATIVO 
-			clienteService.alterarStatusCliente(idCliente, StatusClienteAtivo.INATIVO);
+			vendedorService.alterarStatusVendedor(idVendedor, StatusVendedorAtivo.INATIVO);
 			
 			/*Registro deletado na base, retornar tal registro juntamente com o código HTTP desejado*/
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		}catch(RegistroNaoEncontradoException e) {
 			//Lançar a exceção para que seja tratada pelas pelos processos responsáveis
-			throw e;
+			throw e; 
 		}catch(Exception e) {
 			//Inserir a ocorrência do erro no arquivo de log
-			logger.error("Erro ao deletar o cliente idCliente " + idCliente + ": " + e.getMessage(), e);
+			logger.error("Erro ao deletar o vendedor idVendedor " + idVendedor + ": " + e.getMessage(), e);
 			
 			//Lançar a exceção para que seja tratada pelas pelos processos responsáveis
 			throw new ErroGenericoException(e.getMessage(), null, e);

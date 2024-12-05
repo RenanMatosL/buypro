@@ -10,9 +10,9 @@ import br.com.renanmatos.buypro.excecoes.RequestInvalidoException;
 import br.com.renanmatos.buypro.model.Pedido;
 
 public interface PedidoService{
+	public Pedido salvarPedido(Pedido pedido);
 	public List<Pedido> carregarTodosPedidos();
 	public Pedido consultarPedidoPorId(Long idPedido) ;
-	public Pedido salvarPedido(Pedido pedido);
 	public void alterarPedido(Pedido pedido);
 	public List<PedidoDto> getListaPedidoDtoPorPedido(List<Pedido> listaPedido);
 	public PedidoDto getPedidoDtoPorPedido(Pedido pedido);
@@ -20,7 +20,6 @@ public interface PedidoService{
 	public void validarPedidoDtoParaCadastro(PedidoDto pedidoDto) throws RequestInvalidoException;
 	public void alterarStatusPedido(Long idPedido, StatusPedido statusPedido) throws RegistroNaoEncontradoException;
 	public void deletarPedido(Long idPedido) throws RegistroNaoEncontradoException;
-
 
 }
 	

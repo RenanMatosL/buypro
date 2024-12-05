@@ -15,13 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import br.com.renanmatos.buypro.dao.ProdutoDao;
+import br.com.renanmatos.buypro.dao.VendedorDao;
 import br.com.renanmatos.buypro.dto.ErroProcessamento;
 import br.com.renanmatos.buypro.dto.ErrosRequisicao;
 import br.com.renanmatos.buypro.dto.ProdutoDto;
-import br.com.renanmatos.buypro.excecoes.RegistroJaExisteException;
 import br.com.renanmatos.buypro.excecoes.RegistroNaoEncontradoException;
 import br.com.renanmatos.buypro.excecoes.RequestInvalidoException;
 import br.com.renanmatos.buypro.model.Produto;
+import br.com.renanmatos.buypro.model.Vendedor;
 import br.com.renanmatos.buypro.validacao.ValidacaoAlteracao;
 import br.com.renanmatos.buypro.validacao.ValidacaoCadastro;
 import jakarta.validation.ConstraintViolation;
@@ -35,6 +36,11 @@ public class ProdutoServiceImpl implements ProdutoService {
 	// Injeção de dependência (será injetada classe que IMPLEMENTA essa interface)
 	@Autowired
 	private ProdutoDao produtoDao;
+	
+	@Autowired
+	private VendedorDao vendedorDao;
+	
+	
 
 	// Injeção de dependência de Bean Validador Bean Validation vinculado com o
 	// MessageSource de nosso arquivo properties de mensagens
@@ -76,27 +82,13 @@ public class ProdutoServiceImpl implements ProdutoService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
 
-	// Método que cadastra um novo produto
-	public Produto salvarProduto(Produto produto) throws RegistroJaExisteException {
-		try {
-			// Verifica se já existe um produto com o mesmo código
-			Produto produtoExistente = produtoDao.findByCodigo(produto.getCodigo());
-			if (produtoExistente != null) {
-				throw new RegistroJaExisteException ("Produto já cadastrado com o código: " + produto.getCodigo());
-			}
-
-			// Se não existir, salva o novo produto
-			produtoDao.salvarProduto(produto);
-			return produto;
-
-		} catch (Exception e) {
-			// Logar o erro ocorrido
-			logger.error("Erro ao cadastrar o produto. NOME: " + produto.getNome(), e);
-
-			// Lançar a exceção original
-			throw e;
+	//Método que cadastra um novo produto
+		public Produto salvarProduto(Produto produto){
+			//Preencher atributos padrão
+						
+			return produtoDao.salvarProduto(produto);
 		}
-	}
+
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	// Indica que o método é implementação de uma interface
@@ -150,7 +142,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 			produtoDto.setPeso(produto.getPeso());
 			produtoDto.setCategoria(produto.getCategoria());
 			produtoDto.setPreco(produto.getPreco());
-			produtoDto.setidVendedor(produto.getIdVendedor());
+			produtoDto.setIdVendedor(produto.getVendedor().getIdVendedor());
 
 			return produtoDto;
 		} else {
@@ -158,23 +150,25 @@ public class ProdutoServiceImpl implements ProdutoService {
 		}
 	}
 
+	// Indica que o método é implementação de uma interface
 	@Override
 	// Método que recebe um ProdutoDto e retorna um Produto
 	public Produto getProdutoPorProdutoDto(ProdutoDto produtoDto) {
 		if (produtoDto != null) {
+			Vendedor vendedor = vendedorDao.consultarVendedorPorId(produtoDto.getIdVendedor(), false);
 			Produto produto = new Produto();
-			produto.setIdProduto(produto.getIdProduto());
-			produto.setCodigo(produtoDto.getCodigo());
 			produto.setNome(produtoDto.getNome());
-			produto.setCor(produtoDto.getCor());
+			produto.setCodigo(produtoDto.getCodigo());
 			produto.setAltura(produtoDto.getAltura());
-			produto.setComprimento(produtoDto.getComprimento());
 			produto.setLargura(produtoDto.getLargura());
-			produto.setPeso(produtoDto.getPeso());
-			produto.setDescricao(produtoDto.getDescricao());
+			produto.setComprimento(produtoDto.getComprimento());
+			produto.setCor(produtoDto.getCor());
 			produto.setCategoria(produtoDto.getCategoria());
+			produto.setDescricao(produtoDto.getDescricao());
+			produto.setPeso(produtoDto.getPeso());
+			produto.setVendedor(vendedor);
 			produto.setPreco(produtoDto.getPreco());
-			produto.setIdVendedor(produtoDto.getidVendedor());
+
 			return produto;
 		} else {
 			return null;
@@ -236,64 +230,65 @@ public class ProdutoServiceImpl implements ProdutoService {
 			throw new RequestInvalidoException("Requisição inválida", errosRequisicao, null);
 		}
 	}
-	@Transactional(propagation = Propagation.REQUIRED)		
-	@Override  
-	public boolean excluirProduto(Long idProduto) throws RegistroNaoEncontradoException {  
-	        try {  
-	            // Tenta consultar o produto pelo ID  
-	            Produto produto = produtoDao.consultarProdutoPorId(idProduto);  
 
-	            // Se o produto não for encontrado, lança uma exceção  
-	            if (produto == null) {  
-	                // Aqui você poderia lançar uma exceção se preferir  
-	                return false; // Retorna false se o produto não existe  
-	            }  
-
-	            // Se o produto existir, procede com a exclusão  
-	            produtoDao.excluirProduto(produto);  
-	            return true; // Retorna true se a exclusão for bem-sucedida  
-
-	        } catch (RegistroNaoEncontradoException e) {  
-	            // Loga o erro ocorrido  
-	            logger.error("Erro ao excluir o produto. ID_PRODUTO " + idProduto, e);  
-	            throw e;  // Lança a exceção original se o produto não for encontrado na exclusão  
-	        } catch (IllegalArgumentException e) {  
-	            // Lida com casos onde argumento inválido é passado  
-	            logger.error("Erro ao excluir o produto: argumento inválido. ID_PRODUTO " + idProduto, e);  
-	            throw e; // Lança a exceção original  
-	        }  
-	    } 
-	
+	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
-	//Metodo que calcula o peso volumetrico 
+	public boolean excluirProduto(Long idProduto) throws RegistroNaoEncontradoException {
+		try {
+			// Tenta consultar o produto pelo ID
+			Produto produto = produtoDao.consultarProdutoPorId(idProduto);
+
+			// Se o produto não for encontrado, lança uma exceção
+			if (produto == null) {
+				// Aqui você poderia lançar uma exceção se preferir
+				return false; // Retorna false se o produto não existe
+			}
+
+			// Se o produto existir, procede com a exclusão
+			produtoDao.excluirProduto(produto);
+			return true; // Retorna true se a exclusão for bem-sucedida
+
+		} catch (RegistroNaoEncontradoException e) {
+			// Loga o erro ocorrido
+			logger.error("Erro ao excluir o produto. ID_PRODUTO " + idProduto, e);
+			throw e; // Lança a exceção original se o produto não for encontrado na exclusão
+		} catch (IllegalArgumentException e) {
+			// Lida com casos onde argumento inválido é passado
+			logger.error("Erro ao excluir o produto: argumento inválido. ID_PRODUTO " + idProduto, e);
+			throw e; // Lança a exceção original
+		}
+	}
+
+	@Override
+	// Metodo que calcula o peso volumetrico
 	public BigDecimal calcularPesoVolumetrico(Produto produto) {
- 		BigDecimal altura = (produto.getAltura());  
- 		BigDecimal comprimento = (produto.getComprimento());  
- 		BigDecimal largura = (produto.getLargura());  
- 		BigDecimal divisor = BigDecimal.valueOf(6000);  
- 		return altura.multiply(comprimento).multiply(largura).divide(divisor);  
- }
+		BigDecimal altura = (produto.getAltura());
+		BigDecimal comprimento = (produto.getComprimento());
+		BigDecimal largura = (produto.getLargura());
+		BigDecimal divisor = BigDecimal.valueOf(6000);
+		return altura.multiply(comprimento).multiply(largura).divide(divisor);
+	}
+
 	@Override
-	 public BigDecimal calcularPesoTotal(List<Produto> produtos) {  
-	     if (produtos == null || produtos.isEmpty()) {  
-	         return BigDecimal.ZERO;  
-	     }  
-	     // Inicializa as variáveis para armazenar o peso total  
-	     BigDecimal pesoFisicoTotal = BigDecimal.ZERO;  
-	     BigDecimal pesoVolumetricoTotal = BigDecimal.ZERO;  
+	public BigDecimal calcularPesoTotal(List<Produto> produtos) {
+		if (produtos == null || produtos.isEmpty()) {
+			return BigDecimal.ZERO;
+		}
+		// Inicializa as variáveis para armazenar o peso total
+		BigDecimal pesoFisicoTotal = BigDecimal.ZERO;
+		BigDecimal pesoVolumetricoTotal = BigDecimal.ZERO;
 
-	     // Itera sobre a lista de produtos  
-	     for (Produto produto : produtos) {  
-	         // Soma o peso físico do produto ao peso total  
-	         pesoFisicoTotal = pesoFisicoTotal.add(produto.getPeso());  
+		// Itera sobre a lista de produtos
+		for (Produto produto : produtos) {
+			// Soma o peso físico do produto ao peso total
+			pesoFisicoTotal = pesoFisicoTotal.add(produto.getPeso());
 
-	         // Soma o peso volumétrico do produto ao peso total  
-	         pesoVolumetricoTotal = pesoVolumetricoTotal.add(calcularPesoVolumetrico(produto));  
-	     }  
+			// Soma o peso volumétrico do produto ao peso total
+			pesoVolumetricoTotal = pesoVolumetricoTotal.add(calcularPesoVolumetrico(produto));
+		}
 
-	     // Retorna o maior valor entre o peso físico e o peso volumétrico  
-	     return pesoFisicoTotal.max(pesoVolumetricoTotal);  
-	 }  
-	
-	
+		// Retorna o maior valor entre o peso físico e o peso volumétrico
+		return pesoFisicoTotal.max(pesoVolumetricoTotal);
+	}
+
 }
