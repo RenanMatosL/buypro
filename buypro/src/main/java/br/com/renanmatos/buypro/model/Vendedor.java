@@ -9,7 +9,8 @@ import java.util.Objects;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import br.com.renanmatos.buypro.enuns.StatusVendedor;
+import br.com.renanmatos.buypro.enuns.StatusVendedorAtivo;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -103,15 +104,40 @@ public class Vendedor implements Serializable{
 		//Indica se a coluna pode possuir valores NULL
 		nullable=false
 	)
-	private StatusVendedor statusVendedor;
+	private StatusVendedorAtivo statusVendedor;
 	
 	/*Relacionamento UM para MUITOS para implementação de relacionamento MANY to MANY com colunas EXTRAS!*/
-	@OneToMany(mappedBy = "vendedor",fetch = FetchType.EAGER)
+	@OneToMany(
+		//Obs. Ao indicar CascadeType.PERSIST ocorria erro: detached entity passed to persist: br.com.brunomatos.vendedors.model.Produto
+		
+		/*Atributo mappedBy é indicado nessa classe pois ela não é a dona da relação (não recebe a chave estrangeira)
+		Indicamos o nome do atributo dessa classe (Vendedor) presente na entidade relacionada (ProdutoVendedor)*/
+		mappedBy = "vendedor",
+		/*Indica que por PADRÃO, ao recuperar da base dados da entidade Vendedor, essa lista relacionada DEVERÁ ser também recuperada (SERÁ realziado JOIN entre essas tabelas)*/
+		fetch = FetchType.EAGER
+	)
+	/*Configuração para evitar erros caso essa entidade esteja se relacionando com MAIS de uma entidade em tipo de relacionamento FetchType.EAGER*/
 	@Fetch(value = FetchMode.SUBSELECT)
-    private List<ProdutosDoVendedor> produtosVendedor = new ArrayList();
+	private List <ProdutoVendedor> listaProdutoVendedor = new ArrayList();
+
+
 	
+	public Vendedor() {
+		super();
+	}
 	
-	
+	public Vendedor(Long idVendedor, String nome, String cpf, Date dataNascimento, Date dataCadastro,
+			StatusVendedorAtivo statusVendedor, List<ProdutoVendedor> listaProdutoVendedor) {
+		super();
+		this.idVendedor = idVendedor;
+		this.nome = nome;
+		this.cpf = cpf;
+		this.dataNascimento = dataNascimento;
+		this.dataCadastro = dataCadastro;
+		this.statusVendedor = statusVendedor;
+		this.listaProdutoVendedor = listaProdutoVendedor;
+	}
+
 	/*Métodos equals e hashcode*/
 	@Override
 	public int hashCode() {
@@ -171,15 +197,22 @@ public class Vendedor implements Serializable{
 		this.dataCadastro = dataCadastro;
 	}
 
-	public StatusVendedor getStatusVendedor() {
+	public StatusVendedorAtivo getStatusVendedor() {
 		return statusVendedor;
 	}
 
-	public void setStatusVendedorAtivo(StatusVendedor statusVendedorAtivo) {
-		this.statusVendedor = statusVendedorAtivo;
+	public void setStatusVendedor(StatusVendedorAtivo statusVendedor) {
+		this.statusVendedor = statusVendedor;
+	}
+
+	public List<ProdutoVendedor> getListaProdutoVendedor() {
+		return listaProdutoVendedor;
+	}
+
+	public void setListaProdutoVendedor(List<ProdutoVendedor> listaProdutoVendedor) {
+		this.listaProdutoVendedor = listaProdutoVendedor;
 	}
 
 
-	
 
 }

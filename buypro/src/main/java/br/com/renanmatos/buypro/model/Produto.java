@@ -2,15 +2,16 @@ package br.com.renanmatos.buypro.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 //Indica que se trata de entidade JPA
@@ -64,18 +65,29 @@ public class Produto implements Serializable{
     @Column(name = "COMPRIMENTO", length = 255, nullable = false)  
     private BigDecimal comprimento; // Comprimento do produto	
     
-    @Column(name = "ID_VENDEDOR", length = 250, nullable = false)  
-    private Long idVendedor;  
-    
-
-    //CONSTRUTORES
-    
+    /*Relacionamento MUITOS para UM*/
+	@ManyToOne(
+		/*Indica que por PADRÃO, ao recuperar da base dados da entidade Pedido, o esse objeto relacionado DEVERÁ ser também recuperado (SERÁ realziado JOIN entre Pedido e Cliente)*/
+		fetch = FetchType.EAGER
+	)
+	//Anotação para configurar as colunas das tabelas envolvidas que aplicam o relacionamento
+	@JoinColumn (
+		//Nome da coluna (FK) que será criada na tabela dessa entidade (Pedido)
+		name="ID_VENDEDOR", 
+		//Nome da coluna PK da tabela da entidade relacionada (Cliente)
+		referencedColumnName="ID_VENDEDOR"
+	)
+	private Vendedor vendedor;
+	
 	public Produto() {
+		super();
 	}
+	
+	
 
 	public Produto(Long idProduto, String codigo, String nome, String descricao, String cor, String categoria,
 			BigDecimal preco, BigDecimal peso, BigDecimal altura, BigDecimal largura, BigDecimal comprimento,
-			Long idVendedor) {
+			Vendedor vendedor) {
 		super();
 		this.idProduto = idProduto;
 		this.codigo = codigo;
@@ -88,8 +100,10 @@ public class Produto implements Serializable{
 		this.altura = altura;
 		this.largura = largura;
 		this.comprimento = comprimento;
-		this.idVendedor = idVendedor;
+		this.vendedor = vendedor;
 	}
+
+
 
 	public Long getIdProduto() {
 		return idProduto;
@@ -179,16 +193,21 @@ public class Produto implements Serializable{
 		this.comprimento = comprimento;
 	}
 
-	public Long getIdVendedor() {
-		return idVendedor;
+	public Vendedor getVendedor() {
+		return vendedor;
 	}
 
-	public void setIdVendedor(Long idVendedor) {
-		this.idVendedor = idVendedor;
+	public void setVendedor(Vendedor vendedor) {
+		this.vendedor = vendedor;
 	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(idProduto);
 	}
 
 	@Override
@@ -202,9 +221,6 @@ public class Produto implements Serializable{
 		Produto other = (Produto) obj;
 		return Objects.equals(idProduto, other.idProduto);
 	}
-	
-	
 
-	  
     
 }  
