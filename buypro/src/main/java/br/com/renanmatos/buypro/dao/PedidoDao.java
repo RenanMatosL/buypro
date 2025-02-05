@@ -13,5 +13,5 @@ public interface PedidoDao{
 	public void alterarPedido(Pedido pedido);
 	public void alterarStatusPedido(Long idPedido, StatusPedido statusPedido) throws RegistroNaoEncontradoException;
 	public void deletaPedidoFisicamente (Long idPedido) throws RegistroNaoEncontradoException;
-	public void cancelaPedido(Long idPedido, StatusPedido statusPedidoAtivo) throws RegistroNaoEncontradoException;
+	public void cancelaPedido(Long idPedido, StatusPedido statusPedido) throws RegistroNaoEncontradoException;
 }

@@ -58,13 +58,12 @@ public class ProdutoPedido implements Serializable {
 		//Indica se a coluna pode possuir valores NULL
 		nullable = false
 	)
-
 	private BigDecimal valorUnitario;
-	
+
 	public ProdutoPedido() {
 		super();
 	}
-	
+
 	public ProdutoPedido(Pedido pedido, Produto produto, BigDecimal quantidade, BigDecimal valorUnitario) {
 		super();
 		this.pedido = pedido;
@@ -72,11 +71,6 @@ public class ProdutoPedido implements Serializable {
 		this.quantidade = quantidade;
 		this.valorUnitario = valorUnitario;
 	}
-
-
-
-	//Getters e setters
-
 
 	public Pedido getPedido() {
 		return pedido;
@@ -115,7 +109,6 @@ public class ProdutoPedido implements Serializable {
 		return Objects.hash(pedido, produto);
 	}
 
-	//Crie métodos equals e hashcode com base nos atributos do relacionamento many to many (pedido e produto). SOLICITAR QUE O ECLIPSE GERE ESSES MÉTODOS!
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -128,6 +121,5 @@ public class ProdutoPedido implements Serializable {
 		return Objects.equals(pedido, other.pedido) && Objects.equals(produto, other.produto);
 	}
 	
-	
-	
+ 
 }

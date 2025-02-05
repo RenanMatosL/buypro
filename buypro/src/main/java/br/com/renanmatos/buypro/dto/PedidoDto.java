@@ -2,15 +2,11 @@ package br.com.renanmatos.buypro.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import br.com.renanmatos.buypro.enuns.StatusPedido;
-import br.com.renanmatos.buypro.model.Frete;
-import br.com.renanmatos.buypro.model.ProdutoPedido;
-import br.com.renanmatos.buypro.model.Vendedor;
 import br.com.renanmatos.buypro.validacao.NotEmptyList;
 import br.com.renanmatos.buypro.validacao.ValidacaoAlteracao;
 import br.com.renanmatos.buypro.validacao.ValidacaoCadastroPedido;
@@ -27,12 +23,9 @@ public class PedidoDto implements Serializable{
 	)
 	private Long idPedido;
 
-	private Date protocoloDataPedido;
-	private LocalDate dataPedido;
+	private Date dataPedido;
 	private StatusPedido statusPedido;
-	private BigDecimal valorPedido;
-	private BigDecimal valorFrete;
-	private BigDecimal valorPedidoComFrete;
+	private BigDecimal valor;
 
 	//Validação de preenchimento obrigatório
 	@NotNull(
@@ -50,10 +43,7 @@ public class PedidoDto implements Serializable{
 		//Indicamos que essa validação deverá ser aplicada somente para os grupos indicados
 		groups= {ValidacaoCadastroPedido.class}
 	)	
-	private List <ItenPedidoDto> listaItenPedido = new ArrayList <> ();
-	
-	//Getters e setters
-
+	private List <ItenPedidoDto> listaItenPedido = new ArrayList();
 
 	public Long getIdPedido() {
 		return idPedido;
@@ -63,19 +53,11 @@ public class PedidoDto implements Serializable{
 		this.idPedido = idPedido;
 	}
 
-	public Date getProtocoloDataPedido() {
-		return protocoloDataPedido;
-	}
-
-	public void setProtocoloDataPedido(Date protocoloDataPedido) {
-		this.protocoloDataPedido = protocoloDataPedido;
-	}
-
-	public LocalDate getDataPedido() {
+	public Date getDataPedido() {
 		return dataPedido;
 	}
 
-	public void setDataPedido(LocalDate dataPedido) {
+	public void setDataPedido(Date dataPedido) {
 		this.dataPedido = dataPedido;
 	}
 
@@ -87,30 +69,13 @@ public class PedidoDto implements Serializable{
 		this.statusPedido = statusPedido;
 	}
 
-	public BigDecimal getValorPedido() {
-		return valorPedido;
+	public BigDecimal getValor() {
+		return valor;
 	}
 
-	public void setValorPedido(BigDecimal valorPedido) {
-		this.valorPedido = valorPedido;
+	public void setValor(BigDecimal valor) {
+		this.valor = valor;
 	}
-
-	public BigDecimal getValorFrete() {
-		return valorFrete;
-	}
-
-	public void setValorFrete(BigDecimal valorFrete) {
-		this.valorFrete = valorFrete;
-	}
-
-	public BigDecimal getValorPedidoComFrete() {
-		return valorPedidoComFrete;
-	}
-
-	public void setValorPedidoComFrete(BigDecimal valorPedidoComFrete) {
-		this.valorPedidoComFrete = valorPedidoComFrete;
-	}
-
 
 	public Long getIdCliente() {
 		return idCliente;
@@ -124,13 +89,10 @@ public class PedidoDto implements Serializable{
 		return listaItenPedido;
 	}
 
-	public void setListaItenPedido(List<ProdutoPedido> list) {
+	public void setListaItenPedido(List<ItenPedidoDto> listaItenPedido) {
 		this.listaItenPedido = listaItenPedido;
 	}
 
-
 	
-
-		
 }
 

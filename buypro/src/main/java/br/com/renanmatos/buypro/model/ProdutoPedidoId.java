@@ -5,14 +5,9 @@ import java.util.Objects;
 
 public class ProdutoPedidoId implements Serializable{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	/*Os nomes dos atributos apontam diretamente para os nomes dos atributos da Entity, ProdutoPedido no caso*/
 	private Long pedido;
 	private Long produto;
-	
 
 	public ProdutoPedidoId (){
 	}
@@ -23,7 +18,6 @@ public class ProdutoPedidoId implements Serializable{
 		this.produto =produto;
 	}
 
-	//Getters e setters
 	public Long getPedido() {
 		return pedido;
 	}
@@ -39,8 +33,7 @@ public class ProdutoPedidoId implements Serializable{
 	public void setProduto(Long produto) {
 		this.produto = produto;
 	}
-	
-	//Métodos equals e hashcode com base nos atributos do relacionamento many to many (pedido e produto). SOLICITAR QUE O ECLIPSE GERE ESSES MÉTODOS!
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(pedido, produto);
@@ -57,6 +50,9 @@ public class ProdutoPedidoId implements Serializable{
 		ProdutoPedidoId other = (ProdutoPedidoId) obj;
 		return Objects.equals(pedido, other.pedido) && Objects.equals(produto, other.produto);
 	}
-
 	
+	
+	
+ 
 }
+

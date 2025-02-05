@@ -1,18 +1,14 @@
 package br.com.renanmatos.buypro.model;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import br.com.renanmatos.buypro.enuns.StatusPedido;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,11 +20,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.persistence.Transient;
 
 //Indica que se trata de entidade JPA
 @Entity
@@ -41,11 +35,6 @@ public class Pedido implements Serializable{
 
 	//Atributos com anotações JPA
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	//Indica se tratar de chave primária
 	@Id
 	//Indique que o valor da chave primária deve ser gerado pelo próprio banco de dados de maneira sequencial
@@ -63,15 +52,11 @@ public class Pedido implements Serializable{
 	)
 	@Column(
 		//Nome da coluna na base de dados
-		name="PROTOCOLO_DATA_PEDIDO", 
+		name="DATA_PEDIDO", 
 		//Indica se a coluna pode possuir valores NULL
 		nullable=false
 	)
-	private Date protocoloDataPedido;
-	
-	//indica ao JPA que o atributo não deve ser mapeado para uma coluna na tabela correspondente.
-	@Transient
-	private LocalDate DataPedido;
+	private Date dataPedido;
 
 	//Indica que o valor a ser indicado na coluna deverá ser recuperado via Enum
 	@Enumerated(
@@ -84,7 +69,7 @@ public class Pedido implements Serializable{
 		//Indica se a coluna pode possuir valores NULL
 		nullable=false
 	)
-	private StatusPedido statusPedidoAtivo;
+	private StatusPedido statusPedido;
 
 	@Column(
 		//Nome da coluna na base de dados
@@ -97,7 +82,7 @@ public class Pedido implements Serializable{
 		nullable = false
 	)
 	private BigDecimal valor;
-	
+
 	/*Relacionamento MUITOS para UM*/
 	@ManyToOne(
 		/*Indica que por PADRÃO, ao recuperar da base dados da entidade Pedido, o esse objeto relacionado DEVERÁ ser também recuperado (SERÁ realziado JOIN entre Pedido e Cliente)*/
@@ -124,67 +109,21 @@ public class Pedido implements Serializable{
 	)
 	/*Configuração para evitar erros caso essa entidade esteja se relacionando com MAIS de uma entidade em tipo de relacionamento FetchType.EAGER*/
 	@Fetch(value = FetchMode.SUBSELECT)
-	private List <ProdutoPedido> listaProdutoPedido = new ArrayList <> ();
-	
-	
-	
-	/*Relacionamento MUITOS para UM*/
-	@ManyToOne(
-		/*Indica que por PADRÃO, ao recuperar da base dados da entidade Pedido, o esse objeto relacionado DEVERÁ ser também recuperado (SERÁ realziado JOIN entre Pedido e frete)*/
-		fetch = FetchType.EAGER
-	)
-	//Anotação para configurar as colunas das tabelas envolvidas que aplicam o relacionamento
-	@JoinColumn (
-		//Nome da coluna (FK) que será criada na tabela dessa entidade (Pedido)
-		name="ID_FRETE", 
-		//Nome da coluna PK da tabela da entidade relacionada (Frete)
-		referencedColumnName="ID_FRETE"
-	)
+	private List <ProdutoPedido> listaProdutoPedido = new ArrayList();
 
-	private Frete frete;
-	
-	private BigDecimal valorPedidoComFrete;
-	
-	
-	//Construtores
 	public Pedido() {
+		super();
 	}
-	
-	public Pedido(Long idPedido, Date protocoloDataPedido, LocalDate dataPedido, StatusPedido statusPedidoAtivo,
-			BigDecimal valor, Vendedor vendedor, Cliente cliente, List<ProdutoPedido> listaProdutoPedido, Frete frete,
-			BigDecimal valorPedidoComFrete) {
+
+	public Pedido(Long idPedido, Date dataPedido, StatusPedido statusPedido, BigDecimal valor, Cliente cliente,
+			List<ProdutoPedido> listaProdutoPedido) {
 		super();
 		this.idPedido = idPedido;
-		this.protocoloDataPedido = protocoloDataPedido;
-		DataPedido = dataPedido;
-		this.statusPedidoAtivo = statusPedidoAtivo;
+		this.dataPedido = dataPedido;
+		this.statusPedido = statusPedido;
 		this.valor = valor;
 		this.cliente = cliente;
 		this.listaProdutoPedido = listaProdutoPedido;
-		this.frete = frete;
-		this.valorPedidoComFrete = valorPedidoComFrete;
-	}
-
-
-
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(idPedido);
-	}
-
-
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Pedido other = (Pedido) obj;
-		return Objects.equals(idPedido, other.idPedido);
 	}
 
 	public Long getIdPedido() {
@@ -195,28 +134,20 @@ public class Pedido implements Serializable{
 		this.idPedido = idPedido;
 	}
 
-	public Date getProtocoloDataPedido() {
-		return protocoloDataPedido;
+	public Date getDataPedido() {
+		return dataPedido;
 	}
 
-	public void setProtocoloDataPedido(Date protocoloDataPedido) {
-		this.protocoloDataPedido = protocoloDataPedido;
+	public void setDataPedido(Date dataPedido) {
+		this.dataPedido = dataPedido;
 	}
 
-	public LocalDate getDataPedido() {
-		return DataPedido;
+	public StatusPedido getStatusPedido() {
+		return statusPedido;
 	}
 
-	public void setDataPedido(LocalDate dataPedido) {
-		DataPedido = dataPedido;
-	}
-
-	public StatusPedido getStatusPedidoAtivo() {
-		return statusPedidoAtivo;
-	}
-
-	public void setStatusPedidoAtivo(StatusPedido statusPedidoAtivo) {
-		this.statusPedidoAtivo = statusPedidoAtivo;
+	public void setStatusPedido(StatusPedido statusPedido) {
+		this.statusPedido = statusPedido;
 	}
 
 	public BigDecimal getValor() {
@@ -226,7 +157,6 @@ public class Pedido implements Serializable{
 	public void setValor(BigDecimal valor) {
 		this.valor = valor;
 	}
-
 
 	public Cliente getCliente() {
 		return cliente;
@@ -244,38 +174,9 @@ public class Pedido implements Serializable{
 		this.listaProdutoPedido = listaProdutoPedido;
 	}
 
-	public Frete getFrete() {
-		return frete;
-	}
-
-	public void setFrete(Frete frete) {
-		this.frete = frete;
-	}
-
-	public BigDecimal getValorPedidoComFrete() {
-		return valorPedidoComFrete;
-	}
-
-	public void setValorPedidoComFrete(BigDecimal valorPedidoComFrete) {
-		this.valorPedidoComFrete = valorPedidoComFrete;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
+	/*Crie métodos equals e hashcode com base no atributo idPedido, pois o mesmo representa a chave primária dessa entidade. Ação necessária para o Java realizar corretamente 
+	comparações entre objetos em embora seriam diferentes instâncias, se tratam do MESMO registro (pois possuem o mesmo ID identificador)*/
 
 	
-
 }
-	
-
-
-
-
-
-
-
-
-	
-
 

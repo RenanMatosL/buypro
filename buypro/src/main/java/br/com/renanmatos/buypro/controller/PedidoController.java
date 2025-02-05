@@ -1,5 +1,5 @@
-package br.com.renanmatos.buypro.controller;
-
+	package br.com.renanmatos.buypro.controller;
+	
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -16,13 +16,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.renanmatos.buypro.dto.PedidoDto;
-import br.com.renanmatos.buypro.dto.ValorTotalDto;
 import br.com.renanmatos.buypro.excecoes.ErroGenericoException;
 import br.com.renanmatos.buypro.excecoes.RegistroNaoEncontradoException;
 import br.com.renanmatos.buypro.excecoes.RequestInvalidoException;
 import br.com.renanmatos.buypro.model.Pedido;
 import br.com.renanmatos.buypro.service.PedidoService;
-import br.com.renanmatos.buypro.service.PedidoServiceImpl;
 
 @Controller
 //Prefixo da URL de todos os serviços dessa classe
@@ -35,56 +33,6 @@ public class PedidoController {
 	//Injeção de dependência
 	@Autowired
 	private PedidoService pedidoService;
-	
-	//Serviço REST
-		//Configurações do endpoint desse método
-		@RequestMapping(
-			//URL
-			value="/"
-			//Método HTTP
-			,method=RequestMethod.POST
-			//Tipo do dado retornado
-			,produces = {"application/json; charset=utf-8"}
-			//Tipo de dado recebido
-			,consumes = {"application/json; charset=utf-8"}
-		)
-		public ResponseEntity<Void> salvarPedido (
-			//Payload recebido pela requisição
-			@RequestBody PedidoDto pedidoDto, 
-			//Objeto do Spring que permite configurar conteúdo retornado na requisição referente à URL
-			UriComponentsBuilder uriComponentsBuilder
-		) throws RequestInvalidoException, ErroGenericoException {
-			try {
-				//Validar o preenchimento dos campos
-				pedidoService.validarPedidoDtoParaCadastro(pedidoDto);
-
-				//Converter o objeto DTO para Entidade
-				Pedido pedido = pedidoService.getPedidoPorPedidoDto(pedidoDto);
-				
-				//Cadastrar o registro na base
-				pedido = pedidoService.salvarPedido(pedido);
-				
-
-				//Obter os headers da resposta da requisição
-				HttpHeaders httpHeaders = new HttpHeaders();
-
-				/*Inserir no header "location", a URL que poderá ser acessada para obter o registro recem cadastrado, ficando algo do tipo: 						
-				http://localhost:8080/minhaAplicacao/produtos/5*/        						
-				httpHeaders.setLocation(uriComponentsBuilder.path("/pedidos/{id}").buildAndExpand(pedido.getIdPedido()).toUri());
-
-				/*Indicar os headers que devem ser incluídos ao retorno do serviço junto ao método HTTP indicando sucesso*/
-				return new ResponseEntity<Void>(httpHeaders, HttpStatus.CREATED);
-			}catch(RequestInvalidoException e) {
-				//Lançar a exceção para que seja tratada pelas pelos processos responsáveis
-				throw e;
-			}catch(Exception e) {
-				//Inserir a ocorrência do erro no arquivo de log
-				logger.error("Erro ao salvar o pedido (" + pedidoDto.toString() + "): " + e.getMessage(), e);
-				
-				//Lançar a exceção para que seja tratada pelas pelos processos responsáveis
-				throw new ErroGenericoException(e.getMessage(), null, e);
-			}
-		}
 		
 	//Serviço REST
 	//Configurações do endpoint desse método
@@ -162,7 +110,54 @@ public class PedidoController {
 		}
 	}
 	
-	
+	//Serviço REST
+	//Configurações do endpoint desse método
+	@RequestMapping(
+		//URL
+		value="/"
+		//Método HTTP
+		,method=RequestMethod.POST
+		//Tipo do dado retornado
+		,produces = {"application/json; charset=utf-8"}
+		//Tipo de dado recebido
+		,consumes = {"application/json; charset=utf-8"}
+	)
+	public ResponseEntity<Void> salvarPedido (
+		//Payload recebido pela requisição
+		@RequestBody PedidoDto pedidoDto, 
+		//Objeto do Spring que permite configurar conteúdo retornado na requisição referente à URL
+		UriComponentsBuilder uriComponentsBuilder
+	) throws RequestInvalidoException, ErroGenericoException {
+		try {
+			//Validar o preenchimento dos campos
+			pedidoService.validarPedidoDtoParaCadastro(pedidoDto);
+
+			//Converter o objeto DTO para Entidade
+			Pedido pedido = pedidoService.getPedidoPorPedidoDto(pedidoDto);
+			
+			//Cadastrar o registro na base
+			pedido = pedidoService.salvarPedido(pedido);
+
+			//Obter os headers da resposta da requisição
+			HttpHeaders httpHeaders = new HttpHeaders();
+
+			/*Inserir no header "location", a URL que poderá ser acessada para obter o registro recem cadastrado, ficando algo do tipo: 						
+			http://localhost:8080/minhaAplicacao/produtos/5*/        						
+			httpHeaders.setLocation(uriComponentsBuilder.path("/pedidos/{id}").buildAndExpand(pedido.getIdPedido()).toUri());
+
+			/*Indicar os headers que devem ser incluídos ao retorno do serviço junto ao método HTTP indicando sucesso*/
+			return new ResponseEntity<Void>(httpHeaders, HttpStatus.CREATED);
+		}catch(RequestInvalidoException e) {
+			//Lançar a exceção para que seja tratada pelos processos responsáveis
+			throw e;
+		}catch(Exception e) {
+			//Inserir a ocorrência do erro no arquivo de log
+			logger.error("Erro ao salvar o pedido (" + pedidoDto.toString() + "): " + e.getMessage(), e);
+			
+			//Lançar a exceção para que seja tratada pelas pelos processos responsáveis
+			throw new ErroGenericoException(e.getMessage(), null, e);
+		}
+	}
 	
 	//Serviço REST
 	//Configurações do endpoint desse método
@@ -197,29 +192,4 @@ public class PedidoController {
 			throw new ErroGenericoException(e.getMessage(), null, e);
 		}
 	}
-	
-	@RequestMapping(  
-		    value="/{id}",  
-		    method=RequestMethod.DELETE,  
-		    produces = {"application/json; charset=utf-8"}  
-		)  
-		public ResponseEntity<Void> deletarPedido(@PathVariable("id") long idPedido) throws ErroGenericoException {  
-		    try {  
-		        // Chama o serviço para deletar o pedido pelo ID  
-		        pedidoService.deletarPedido(idPedido);  
-		        
-		        // Retorna uma resposta 204 No Content, indicando que a solicitação foi bem-sucedida   
-		        // e que o recurso foi removido  
-		        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);  
-		    } catch (RegistroNaoEncontradoException e) {  
-		        // Retorna um status 404 Not Found se o pedido não existir  
-		        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  
-		    } catch (Exception e) {  
-		        // Insere a ocorrência do erro no arquivo de log  
-		        logger.error("Erro ao deletar o pedido com id " + idPedido + ": " + e.getMessage(), e);  
-		        
-		        // Lança uma exceção genérica em caso de erro  
-		        throw new ErroGenericoException(e.getMessage(), null, e);  
-		    }  
-		}
 }

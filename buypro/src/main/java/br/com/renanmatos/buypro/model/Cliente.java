@@ -1,10 +1,8 @@
 package br.com.renanmatos.buypro.model;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -38,11 +36,6 @@ public class Cliente implements Serializable{
 
 	//Atributos com anotações JPA
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	//Indica se tratar de chave primária
 	@Id
 	//Indique que o valor da chave primária deve ser gerado pelo próprio banco de dados de maneira sequencial
@@ -127,13 +120,36 @@ public class Cliente implements Serializable{
 		/*Indica que por PADRÃO, ao recuperar da base dados da entidade Cliente, essa LISTA relacionada NÃO deverá ser recuperada (NÃO será realziado JOIN entre Cliente e Pedido)*/
 		,fetch =  FetchType.LAZY
 	)
-    	/*Configuração para evitar erros caso essa entidade esteja se relacionando com MAIS de uma entidade em tipo de relacionamento FetchType.EAGER*/
-    	@Fetch(value = FetchMode.SUBSELECT)
-	private List<Pedido> listaPedidos = new ArrayList <>();
+	/*Configuração para evitar erros caso essa entidade esteja se relacionando com MAIS de uma entidade em tipo de relacionamento FetchType.EAGER*/
+	@Fetch(value = FetchMode.SUBSELECT)
+	private List<Pedido> listaPedidos = new ArrayList();
 
-		
-    //Construtores	
+	/*Relacionamento MUITOS para MUITOS
+	UM MESMO cliente pode possuir MUITAS profissões, e UMA MESMA profissão também pode ser de DIFERENTES clientes
+	Isso configura uma relação MUITOS para MUITOS
+	Não serão aplicadas colunas extras à tabela auxiliar (tabela que possui os ids das tabelas envolvidas)
+	Esse relacionamento será unidirecional e como essa entidade acessará o relacionamento, recebe a anotação @ManyToMany*/
+	@ManyToMany (
+		/*Indica se esse relacionamento deverá ser recuperado nas consultas: EAGER recupera o relacionamento, LAZY não*/
+		fetch = FetchType.EAGER
+	) 
+	/*Em cenário em que na consulta, dentre todas as associações de entidades, houver mais de um relacionamento EAGER ManyToOne ou OneToMany, deverá utilizar coleções do tipo SET 
+	ou indicar que ao invés de JOIN, as associações deverão ser obtidas via sub consultas via FetchMode.SUBSELECT. Isso evita exceções referentes a múltiplos fetch e também duplicidades 
+	nos resultados*/
+    	@Fetch(value = FetchMode.SUBSELECT)
+	/*Configurações da tabela auxiliar do relacionamento*/
+	@JoinTable(
+		/*Nome da tabela auxiliar que representa o relacionamento (possui o ID das duas tabelas envolvidas)*/
+		name="CLIENTE_PROFISSAO"
+		/*Nome da coluna referente ao id dessa entidade presente na tabela auxiliar*/
+		,joinColumns = @JoinColumn(name = "ID_CLIENTE")
+		/*Nome da coluna referente ao id da tabela referenciada presente na tabela auxiliar*/
+		,inverseJoinColumns = @JoinColumn(name = "ID_PROFISSAO")
+	)
+	private List<Profissao> listaProfissoes = new ArrayList();
+
 	public Cliente() {
+		super();
 	}
 
 	public Cliente(Long idCliente, String nome, String cpf, Date dataNascimento, Date dataCadastro,
@@ -146,10 +162,9 @@ public class Cliente implements Serializable{
 		this.dataCadastro = dataCadastro;
 		this.statusClienteAtivo = statusClienteAtivo;
 		this.listaPedidos = listaPedidos;
+		this.listaProfissoes = listaProfissoes;
 	}
 
-
-	//Getters e Setters
 	public Long getIdCliente() {
 		return idCliente;
 	}
@@ -206,22 +221,15 @@ public class Cliente implements Serializable{
 		this.listaPedidos = listaPedidos;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(idCliente);
+	public List<Profissao> getListaProfissoes() {
+		return listaProfissoes;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Cliente other = (Cliente) obj;
-		return Objects.equals(idCliente, other.idCliente);
+	public void setListaProfissoes(List<Profissao> listaProfissoes) {
+		this.listaProfissoes = listaProfissoes;
 	}
+	
+	
 
 
 	

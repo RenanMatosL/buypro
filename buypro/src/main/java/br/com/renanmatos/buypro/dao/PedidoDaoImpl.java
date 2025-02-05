@@ -84,7 +84,7 @@ public class PedidoDaoImpl implements PedidoDao{
 	//Indica que o método é implementação de uma interface
 	@Override
 	//Método que altera o status do cliente
-	public void cancelaPedido(Long idPedido, StatusPedido statusPedidoAtivo) throws RegistroNaoEncontradoException {
+	public void cancelaPedido(Long idPedido, StatusPedido statusPedido) throws RegistroNaoEncontradoException {
 		StringBuilder jpql = new StringBuilder("");
 		jpql.append("UPDATE Pedido p ");
 		jpql.append("SET p.statusPedido = :statusPedidoP ");
@@ -93,7 +93,7 @@ public class PedidoDaoImpl implements PedidoDao{
 		Query query = entityManager.createQuery(jpql.toString());
 
 		//Parmâmetros da instrução SQL
-		query.setParameter("statusPedidoP", statusPedidoAtivo);
+		query.setParameter("statusPedidoP", statusPedido);
 		query.setParameter("idPedidoP", idPedido);
 
 		//Executar o UPDATE e recuperar a quantidade de linhas alteradas (caso desejar validar se alguma linha foi alterada)
@@ -112,16 +112,16 @@ public class PedidoDaoImpl implements PedidoDao{
 	//Indica que o método é implementação de uma interface
 	@Override
 	//Método que altera o status do pedido
-	public void alterarStatusPedido(Long idPedido, StatusPedido statusPedidoAtivo) throws RegistroNaoEncontradoException{
+	public void alterarStatusPedido(Long idPedido, StatusPedido statusPedido) throws RegistroNaoEncontradoException{
 		StringBuilder jpql = new StringBuilder("");
 		jpql.append("UPDATE Pedido p ");
-		jpql.append("SET p.statusPedidoAtivo = :statusPedidoAtivoP ");
+		jpql.append("SET p.statusPedido = :statusPedidoP ");
 		jpql.append("WHERE p.idPedido = : idPedidoP ");
 
 		Query query = entityManager.createQuery(jpql.toString());
 
 		//Parmâmetros da instrução SQL
-		query.setParameter("statusPedidoAtivoP", statusPedidoAtivo);
+		query.setParameter("statusPedidoP", statusPedido);
 		query.setParameter("idPedidoP", idPedido);
 
 		//Executar o UPDATE e recuperar a quantidade de linhas alteradas (caso desejar validar se alguma linha foi alterada)

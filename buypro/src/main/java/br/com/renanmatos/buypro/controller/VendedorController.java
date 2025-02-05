@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.renanmatos.buypro.dto.VendedorDto;
-import br.com.renanmatos.buypro.enuns.StatusVendedorAtivo;
+import br.com.renanmatos.buypro.enuns.StatusVendedor;
 import br.com.renanmatos.buypro.excecoes.ErroGenericoException;
 import br.com.renanmatos.buypro.excecoes.RegistroJaExisteException;
 import br.com.renanmatos.buypro.excecoes.RegistroNaoEncontradoException;
@@ -76,6 +76,45 @@ public class VendedorController {
 			throw new ErroGenericoException(e.getMessage(), null, e);
 		}
 	}
+	
+	// Serviço REST
+		// Configurações do endpoint desse método
+		@RequestMapping(
+				// URL
+				value = "/todosVendedores"
+				// Método HTTP
+				, method = RequestMethod.GET
+				// Tipo do dado retornado
+				, produces = { "application/json; charset=utf-8" })
+		// ResponseEntity indica o conteúdo a ser retornado junto ao response HTTP
+		public ResponseEntity<List<VendedorDto>> recuperarTodosVendedores() throws ErroGenericoException {
+			try {
+				// Recuperar todos os vendedores da base
+				List<Vendedor> listaVendedores = vendedorService.carregarTodosVendedores(false);
+
+				// Verificar se registros foram localizados
+				if (listaVendedores != null && listaVendedores.size() > 0) {
+					// Registros encontrados na base
+					// Converter o objeto Vendedor para VendedorDto
+					List<VendedorDto> listaVendedorDto = vendedorService.getListaVendedorDtoPorVendedor(listaVendedores);
+
+					// Retornar os registros juntamente com o código HTTP indicando sucesso
+					return new ResponseEntity<List<VendedorDto>>(listaVendedorDto, HttpStatus.OK);
+				} else {
+					/*
+					 * Nenhum registro encontrado, retornar conteúdo vazio, juntamente com o código
+					 * HTTP desejado
+					 */
+					return new ResponseEntity<List<VendedorDto>>(HttpStatus.NOT_FOUND);
+				}
+			} catch (Exception e) {
+				// Inserir a ocorrência do erro no arquivo de log
+				logger.error("Erro ao recuperar os vendedores: " + e.getMessage(), e);
+
+				// Lançar a exceção para que seja tratada pelas pelos processos responsáveis
+				throw new ErroGenericoException(e.getMessage(), null, e);
+			}
+		}
 
 	//Serviço REST
 	//Configurações do endpoint desse método
@@ -193,7 +232,7 @@ public class VendedorController {
 	) throws ErroGenericoException, RegistroNaoEncontradoException {
 		try {
 			//Ao invés de deletar o registro, apenas alterar seu status para INATIVO 
-			vendedorService.alterarStatusVendedor(idVendedor, StatusVendedorAtivo.INATIVO);
+			vendedorService.alterarStatusVendedor(idVendedor, StatusVendedor.INATIVO);
 			
 			/*Registro deletado na base, retornar tal registro juntamente com o código HTTP desejado*/
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);

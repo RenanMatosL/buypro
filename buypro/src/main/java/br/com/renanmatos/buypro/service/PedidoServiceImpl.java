@@ -21,7 +21,6 @@ import br.com.renanmatos.buypro.enuns.StatusPedido;
 import br.com.renanmatos.buypro.excecoes.RegistroNaoEncontradoException;
 import br.com.renanmatos.buypro.excecoes.RequestInvalidoException;
 import br.com.renanmatos.buypro.model.Pedido;
-import br.com.renanmatos.buypro.model.Produto;
 import br.com.renanmatos.buypro.model.ProdutoPedido;
 import br.com.renanmatos.buypro.validacao.ValidacaoCadastroPedido;
 import jakarta.validation.ConstraintViolation;
@@ -39,84 +38,11 @@ public class PedidoServiceImpl implements PedidoService{
 	@Autowired
 	private ClienteService clienteService;
 	
-	
-	@Autowired
-	private FreteServiceImpl freteService;
-		
 	//Injeção de dependência de Bean Validador Bean Validation vinculado com o MessageSource de nosso arquivo properties de mensagens
 	@Autowired
 	//Indicamos o nome do bean que desejamos injetar
 	@Qualifier("localValidatorFactoryBeanPadrao")
 	private LocalValidatorFactoryBean localValidatorFactoryBean;
-	
-	//Configuração de transação
-	@Transactional(
-		/*Indica ao Spring que o método deverá ser executado com transação aberta, onde se já houver uma transação aberta, 
-		deverá utilizar essa transação aberta (ao invés de criar nova), caso contrário, deverá criar uma nova transação*/
-		propagation=Propagation.REQUIRED
-	)
-	//Método que cadastra um novo pedido
-	public Pedido salvarPedido(Pedido pedido){
-		//Preencher atributos padrão
-		pedido.setProtocoloDataPedido(new Date());
-		pedido.setDataPedido(pedido.getDataPedido());
-		
-		pedido.setStatusPedidoAtivo(StatusPedido.AGUARDANDO_PAGAMENTO);
-		
-		//Calcular valores do pedido (preencher atributos da entidade)
-		calcularValorPedido(pedido);
-		
-        // Calcular o valor do frete  
-		BigDecimal valorFrete = calcularValorFrete(pedido);
-		
-        // Calcular o valor total (pedido + frete)  
-		BigDecimal valorTotal = calcularValorTotal (pedido.getValor(), valorFrete);
-		
-		//Atualizando o pedido com os valores
-		pedido.getFrete().setValor(valorFrete);
-		pedido.setValor(valorTotal);
-		
-		return pedidoDao.salvarPedido(pedido);
-	}
-
-	public void calcularValorPedido(Pedido pedido) {
-		BigDecimal valorPedido = BigDecimal.ZERO;
-		
-		for (ProdutoPedido produtoPedido : pedido.getListaProdutoPedido()) {
-			//Preencher o valor unitário do produto no pedido recuperando da entidade produto
-			produtoPedido.setValorUnitario(produtoPedido.getProduto().getPreco()); 
-			
-			//Atualizar o valor total do pedido (valor unitário vezes quantidade)
-			valorPedido = valorPedido.add(produtoPedido.getValorUnitario().multiply(produtoPedido.getQuantidade()));
-		}
-		
-		//Atualizando o valor total do pedido
-		pedido.setValor(valorPedido);
-	}
-	
-	
-	public BigDecimal calcularValorFrete (Pedido pedido){
-		return freteService.calcularFrete(pedido); // Método que deve calcular e retornar o valor do frete  
-	}  
-	
-	
-	//Metodo para retornar o valor total do pedido + frete
-	public BigDecimal calcularValorTotal (BigDecimal valorPedido, BigDecimal valorFrete) {
-		return valorPedido.add (valorFrete);
-		
-		
-	}
-	
-	//Configuração de transação
-	@Transactional(
-		/*Indica ao Spring que o método não precisa ser executado com uma transação, onde se JÁ houver uma transação aberta, esse método fará uso dela, mas se NÃO houver uma 
-		transação aberta, o Spring NÃO deverá criar uma para executar esse método*/
-		propagation=Propagation.SUPPORTS
-	)
-	//Método que retorna um Pedido por seu ID
-	public Pedido consultarPedidoPorId(Long idPedido) {
-		return pedidoDao.consultarPedidoPorId(idPedido);
-	}
 	
 	//Configuração de transação
 	@Transactional(
@@ -127,6 +53,49 @@ public class PedidoServiceImpl implements PedidoService{
 	//Método que retorna a um List de TODOS Pedidos
 	public List<Pedido> carregarTodosPedidos() {
 		return pedidoDao.carregarTodosPedidos();
+	}
+
+	//Configuração de transação
+	@Transactional(
+		/*Indica ao Spring que o método não precisa ser executado com uma transação, onde se JÁ houver uma transação aberta, esse método fará uso dela, mas se NÃO houver uma 
+		transação aberta, o Spring NÃO deverá criar uma para executar esse método*/
+		propagation=Propagation.SUPPORTS
+	)
+	//Método que retorna um Pedido por seu ID
+	public Pedido consultarPedidoPorId(Long idPedido) {
+		return pedidoDao.consultarPedidoPorId(idPedido);
+	}
+
+	//Configuração de transação
+	@Transactional(
+		/*Indica ao Spring que o método deverá ser executado com transação aberta, onde se já houver uma transação aberta, 
+		deverá utilizar essa transação aberta (ao invés de criar nova), caso contrário, deverá criar uma nova transação*/
+		propagation=Propagation.REQUIRED
+	)
+	//Método que cadastra um novo pedido
+	public Pedido salvarPedido(Pedido pedido){
+		//Preencher atributos padrão
+		pedido.setDataPedido(new Date());
+		pedido.setStatusPedido(StatusPedido.AGUARDANDO_PAGAMENTO);
+		
+		//Calcular valores do pedido (preencher atributos da entidade)
+		calcularValorPedido(pedido);
+		
+		return pedidoDao.salvarPedido(pedido);
+	}
+
+	public void calcularValorPedido(Pedido pedido) {
+		BigDecimal valorPedido = new BigDecimal("0");
+		for (ProdutoPedido produtoPedido : pedido.getListaProdutoPedido()) {
+			//Preencher o valor unitário do produto no pedido recuperando da entidade produto
+			produtoPedido.setValorUnitario(produtoPedido.getProduto().getPreco()); 
+			
+			//Atualizar o valor total do pedido (valor unitário vezes quantidade)
+			valorPedido = valorPedido.add(produtoPedido.getValorUnitario().multiply(produtoPedido.getQuantidade()));
+		}
+		
+		//Atualizar o valor total do pedido
+		pedido.setValor(valorPedido);
 	}
 	
 	//Configuração de transação
@@ -168,13 +137,9 @@ public class PedidoServiceImpl implements PedidoService{
 			PedidoDto pedidoDto = new PedidoDto();
 			pedidoDto.setIdPedido(pedido.getIdPedido());
 			pedidoDto.setIdCliente(pedido.getCliente().getIdCliente());
-			pedidoDto.setProtocoloDataPedido(pedido.getProtocoloDataPedido());
-			pedidoDto.setValorPedido(pedido.getValor());
-			pedidoDto.setValorFrete(pedido.getFrete().getValor());
-			pedidoDto.setValorPedidoComFrete(pedido.getValorPedidoComFrete());
-			pedidoDto.setStatusPedido(pedido.getStatusPedidoAtivo());
-			pedidoDto.setListaItenPedido(pedido.getListaProdutoPedido());
-			
+			pedidoDto.setDataPedido(pedido.getDataPedido());
+			pedidoDto.setValor(pedido.getValor());
+			pedidoDto.setStatusPedido(pedido.getStatusPedido());
 			
 			//Lista de itens
 			if (pedido.getListaProdutoPedido() != null && pedido.getListaProdutoPedido().size() > 0) {
@@ -183,7 +148,6 @@ public class PedidoServiceImpl implements PedidoService{
 					itenPedidoDto.setProduto(produtoService.getProdutoDtoPorProduto(produtoPedido.getProduto()));
 					itenPedidoDto.setQuantidade(produtoPedido.getQuantidade());
 					itenPedidoDto.setValorUnitario(produtoPedido.getValorUnitario());
-					
 					
 					pedidoDto.getListaItenPedido().add(itenPedidoDto);
 				}
@@ -203,9 +167,9 @@ public class PedidoServiceImpl implements PedidoService{
 			Pedido pedido = new Pedido();
 			pedido.setIdPedido(pedidoDto.getIdPedido());
 			pedido.setCliente(clienteService.consultarClientePorId(pedidoDto.getIdCliente(), false));
-			pedido.setProtocoloDataPedido(pedidoDto.getProtocoloDataPedido());
-			pedido.setStatusPedidoAtivo(pedidoDto.getStatusPedido());
-			pedido.setValor(pedidoDto.getValorPedido());
+			pedido.setDataPedido(pedidoDto.getDataPedido());
+			pedido.setStatusPedido(pedidoDto.getStatusPedido());
+			pedido.setValor(pedidoDto.getValor());
 			
 			//Lista de itens
 			if (pedidoDto.getListaItenPedido() != null && pedidoDto.getListaItenPedido().size() > 0) {
@@ -267,25 +231,5 @@ public class PedidoServiceImpl implements PedidoService{
 		
 		pedidoDao.alterarStatusPedido(idPedido, statusPedido);
 	}
-
-	@Override
-	public void deletarPedido(Long idPedido) throws RegistroNaoEncontradoException {
-		if (Long.SIZE > 0) {
-			Pedido pedido = new Pedido();
-			if (pedido.getDataPedido().isAfter(pedido.getDataPedido().plusDays(9))){
-				Long idCliente = pedido.getCliente().getIdCliente();
-				pedidoDao.deletaPedidoFisicamente(idCliente);
-			}
-						
-		}
-		
-	}
-	
 }
-
-
-
-
-
-
 
